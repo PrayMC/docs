@@ -10,12 +10,9 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   build:
+    name: Build Docusaurus
     runs-on: ubuntu-latest
 
     steps:
@@ -24,12 +21,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Enable Corepack
+      - name: Enable Corepack & pnpm
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
@@ -40,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - name: Build website
         run: pnpm build
 
       - name: Setup Pages
@@ -52,6 +49,7 @@ jobs:
           path: build
 
   deploy:
+    name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
 
@@ -60,6 +58,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      # 9️⃣ GitHub Pages 배포
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
